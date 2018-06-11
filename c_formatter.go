@@ -1,17 +1,39 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
 	"regexp"
 )
 
-func main() {
-	// Compile the expression once, usually at init time.
-	// Use raw strings to avoid having to quote the backslashes.
-	var validID = regexp.MustCompile(`^[a-z]+\[[0-9]+\]$`)
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
-	fmt.Println(validID.MatchString("adam[23]"))
-	fmt.Println(validID.MatchString("eve[7]"))
-	fmt.Println(validID.MatchString("Job[48]"))
-	fmt.Println(validID.MatchString("snakey"))
+func main() {
+	var re1 = regexp.MustCompile(`([^ <>="+])=`)
+	var re2 = regexp.MustCompile(`=([^ "=]\\)`)
+
+	f, err := os.Open("./main.c")
+	check(err)
+	defer f.Close()
+
+	w, err := os.OpenFile("./new_main.c", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	defer w.Close()
+
+	r4 := bufio.NewReader(f)
+	w4 := bufio.NewWriter(w)
+	for s, err := r4.ReadString('\n'); err != io.EOF; s, err = r4.ReadString('\n') {
+		t1 := re1.ReplaceAllString(s, `$1 =`)
+		t2 := re2.ReplaceAllString(t1, `= $1`)
+		_, err = w4.WriteString(t2)
+		check(err)
+		fmt.Println(t2)
+	}
+	w4.Flush()
 }
