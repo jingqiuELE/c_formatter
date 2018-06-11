@@ -15,8 +15,8 @@ func check(e error) {
 }
 
 func main() {
-	var re1 = regexp.MustCompile(`([^ <>="+])=`)
-	var re2 = regexp.MustCompile(`=([^ "=]\\)`)
+	var re1 = regexp.MustCompile(`([^ <>+-="])([-+><=]?=)`)
+	var re2 = regexp.MustCompile(`([=]?=|,)([^ \n\t"])`)
 
 	f, err := os.Open("./main.c")
 	check(err)
@@ -29,8 +29,8 @@ func main() {
 	r4 := bufio.NewReader(f)
 	w4 := bufio.NewWriter(w)
 	for s, err := r4.ReadString('\n'); err != io.EOF; s, err = r4.ReadString('\n') {
-		t1 := re1.ReplaceAllString(s, `$1 =`)
-		t2 := re2.ReplaceAllString(t1, `= $1`)
+		t1 := re1.ReplaceAllString(s, `$1 $2`)
+		t2 := re2.ReplaceAllString(t1, `$1 $2`)
 		_, err = w4.WriteString(t2)
 		check(err)
 		fmt.Println(t2)
