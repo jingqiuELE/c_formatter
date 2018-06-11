@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -22,7 +21,7 @@ func main() {
 	check(err)
 	defer f.Close()
 
-	w, err := os.OpenFile("./new_main.c", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	w, err := os.OpenFile("./new_main.c", os.O_CREATE|os.O_WRONLY, 0644)
 	check(err)
 	defer w.Close()
 
@@ -33,7 +32,6 @@ func main() {
 		t2 := re2.ReplaceAllString(t1, `$1 $2`)
 		_, err = w4.WriteString(t2)
 		check(err)
-		fmt.Println(t2)
 	}
 	w4.Flush()
 }
